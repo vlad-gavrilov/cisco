@@ -1,0 +1,12 @@
+IP-адрес PC0: 192.168.1.2 255.255.255.0
+
+!Router0:
+enable
+    configure terminal
+        interface gigabitEthernet 0/0 
+            no shutdown
+            ip address 192.168.1.1 255.255.255.0
+            exit
+        exit
+    write memory
+    exit

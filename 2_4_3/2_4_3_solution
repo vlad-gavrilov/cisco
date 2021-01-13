@@ -1,0 +1,24 @@
+Сконфигурировать маршрутизатор для работы с протоколом
+SSH, исключив возможность использования протокола Telnet. Используя
+SSH-клиент, осуществить удаленное подключение к маршрутизатору с
+использованием протокола SSH. Проверить работоспособность системы
+аутентификации.
+
+!R0:
+enable
+    configure terminal
+        hostname R0
+
+        ip domain-name mydomain.ru
+        crypto key generate rsa
+
+        line vty 0 15
+            transport input ssh
+            exit
+        
+        !aaa new-model
+        !aaa authentication login default local
+
+        exit
+    write memory
+    exit

@@ -1,0 +1,30 @@
+show running-config
+show ip access-lists
+no access-list 110
+
+1. Всем компьютерам подсети 192.169.3.0 предоставить полный доступ ко всем серверам.
+2. Всем компьютерам подсети 192.169.4.0 предоставить доступ только к FTP-серверу по протоколу FTP.
+3. Всем компьютерам подсети 192.169.5.0 предоставить доступ только к WEB-серверу.
+4. Компьютерам оставшейся подсети запретить доступ к внешним ресурсам.
+
+!Router2:
+enable
+    configure terminal
+        access-list 110 permit tcp 192.169.3.0 0.0.0.255 host 192.169.7.3 eq ftp
+        access-list 110 permit tcp 192.169.3.0 0.0.0.255 host 192.169.7.4 eq www
+        access-list 110 permit tcp 192.169.4.0 0.0.0.255 host 192.169.7.3 eq ftp
+        access-list 110 permit tcp 192.169.5.0 0.0.0.255 host 192.169.7.4 eq www
+
+        access-list 10 deny any
+
+        interface fa 1/0
+            ip access-group 110 out
+            exit
+
+        interface fa 0/1
+            ip access-group 10 in
+            exit
+        exit
+
+    write memory 
+    exit

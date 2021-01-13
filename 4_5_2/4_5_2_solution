@@ -1,0 +1,22 @@
+!Router0:
+enable
+    configure terminal
+        !Создаю правило для инспектирования TCP-трафика
+        ip inspect name TCP_RULE tcp
+        
+        !Привязываю это правило к порту fa0/0 со входящим направлением трафика
+        interface fa0/0
+            ip inspect TCP_RULE in
+            exit
+        
+        !Создаю спискок доступа, запрещающий весь трафик
+        access-list 110 deny ip any any
+
+        !Привязываю этот список к порту fa0/1 со входящим направлением трафика
+        interface fa0/1
+            ip access-group 110 in
+            exit
+
+        exit
+    write memory
+    exit

@@ -1,0 +1,125 @@
+1. Настройка сегментов сети.
+
+!Настройка Router0:
+enable
+    configure terminal
+        interface FastEthernet 0/1
+            no shutdown
+            ip address 192.169.3.5 255.255.255.0
+            exit
+        interface FastEthernet 1/0
+            no shutdown
+            ip address 192.169.4.5 255.255.255.0
+            exit
+        exit
+    write memory
+    exit
+
+!Настройка Router1:
+enable
+    configure terminal
+        interface FastEthernet 1/0
+            no shutdown
+            ip address 192.169.5.5 255.255.255.0
+            exit
+        exit
+    write memory
+    exit
+
+!Настройка Router2:
+enable
+    configure terminal
+        interface FastEthernet 0/1
+            no shutdown
+            ip address 192.169.6.5 255.255.255.0
+            exit
+        interface FastEthernet 1/0
+            no shutdown
+            ip address 192.169.7.5 255.255.255.0
+            exit
+        exit
+    write memory
+    exit
+
+Настроил IP-адреса для PC0-PC9 согласно заданию, а также сконфигурировал WEB- и FTP-серверы.
+Добавил в Default Gateway IP-адрес порта маршрутизатора для каждой из подсетей.
+
+
+2. Настройка двух сетей между маршрутизаторами.
+
+!Настройка Router0:
+enable
+    configure terminal
+        interface FastEthernet 0/0
+            no shutdown
+            ip address 156.92.15.1 255.255.255.252
+            exit
+        exit
+    write memory
+    exit
+
+!Настройка Router1:
+enable
+    configure terminal
+        interface FastEthernet 0/0
+            no shutdown
+            ip address 156.92.15.2 255.255.255.252
+            exit
+        interface FastEthernet 0/1
+            no shutdown
+            ip address 157.92.15.1 255.255.255.252
+            exit
+        exit
+    write memory
+    exit
+
+!Настройка Router2:
+enable
+    configure terminal
+        interface FastEthernet 0/0
+            no shutdown
+            ip address 157.92.15.2 255.255.255.252
+            exit
+        exit
+    write memory
+    exit
+
+После этого между маршрутизаторами появится связь. Но маршрутизации между подсетями пока нет.
+
+
+3. Настройка статической маршрутизации.
+
+Указываю на маршрутизаторах Router0 и Router2 маршруты по умолчанию:
+
+!Настройка Router0:
+enable
+    configure terminal
+        interface FastEthernet 0/0
+            ip route 0.0.0.0 0.0.0.0 156.92.15.2
+            exit
+        exit
+    write memory
+    exit
+
+!Настройка Router2:
+enable
+    configure terminal
+        interface FastEthernet 0/0
+            ip route 0.0.0.0 0.0.0.0 157.92.15.1
+            exit
+        exit
+    write memory
+    exit
+
+На маршрутизаторе Router1 указываю таблицу маршрутизации:
+
+!Настройка Router1:
+enable
+    configure terminal
+        ip route 192.169.3.0 255.255.255.0 156.92.15.1
+        ip route 192.169.4.0 255.255.255.0 156.92.15.1
+        ip route 192.169.6.0 255.255.255.0 157.92.15.2
+        ip route 192.169.7.0 255.255.255.0 157.92.15.2
+        exit
+    write memory
+    exit

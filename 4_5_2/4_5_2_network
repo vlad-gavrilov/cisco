@@ -1,0 +1,38 @@
+Настроил IP-адреса, маски и маршрут по умолчанию на всех ПК и серверах сети по следующей схеме:
+Адрес внешней сети: 213.80.65.0/24
+ПК во внешней сети: 213.80.65.4
+Адрес внутренней сети: 192.168.1.0/24
+DNS-сервер во внутренней сети: 192.168.1.10
+Адрес сети маршрутизаторов: 192.168.2.0/24
+
+!Router1:
+enable
+    configure terminal
+        interface fa0/0
+            no shutdown
+            ip address 213.80.65.1 255.255.255.0
+            exit
+        interface fa0/1
+            no shutdown
+            ip address 192.168.2.1 255.255.255.252
+            ip route 0.0.0.0 0.0.0.0 192.168.2.2
+            exit
+        exit
+    write memory
+    exit
+
+!Router0:
+enable
+    configure terminal
+        interface fa0/0
+            no shutdown
+            ip address 192.168.1.1 255.255.255.0
+            exit
+        interface fa0/1
+            no shutdown
+            ip address 192.168.2.2 255.255.255.252
+            ip route 0.0.0.0 0.0.0.0 192.168.2.1
+            exit
+        exit
+    write memory
+    exit

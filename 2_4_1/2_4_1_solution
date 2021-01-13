@@ -1,0 +1,40 @@
+Используя программные продукты (Cisco Packet Tracer или
+GNS3) или реальное оборудование, подключиться к консольному порту
+устройства (коммутатора или маршрутизатора). Создать пароль для входа в
+привилегированный режим, используя параметр secret. Создать три учетные
+записи с разными уровнями привилегий, используя функцию ААА. При
+создании учетных записей использовать логин <фамилия в английской
+транскрипцииNoучетной записи>. Проверить работоспособность системы
+аутентификации по локальной базе пользователей.
+
+
+!PC0:
+enable
+    configure terminal
+        enable secret rabbit
+        exit
+    write memory
+    exit
+
+
+!Router0:
+enable
+    configure terminal
+        enable secret rabbit
+
+        username gavrilov0 privilege 1 secret gavrilov0
+        username gavrilov1 privilege 8 secret gavrilov1
+        privilege exec level 8 ping
+        privilege exec level 8 dir
+        privilege exec level 8 clock
+        username gavrilov2 privilege 15 secret gavrilov2
+
+        !line console 0
+            !login local
+            !exit
+
+        aaa new-model
+        aaa authentication login default local
+        exit
+    write memory
+    exit
