@@ -1,0 +1,101 @@
+4.5.3.3 Сконфигурировать на маршрутизаторе межсетевой экран
+ZBFW, обеспечивающий выполнение следующих правил:
+- из внутренней сети разрешены все запросы к внешней сети;
+- к демилитаризованной зоне разрешены запросы из внутренней сети
+по протоколам Telnet и SSH и только с адресов, принадлежащих внутренней
+сети;
+- из внешней сети запросы во внутреннюю сеть запрещены;
+- из внешней сети запросы в демилитаризованную зону разрешены
+только по протоколу HTTP.
+4.5.3.4 Проверить работоспособность межсетевого экрана.
+
+
+!Router0:
+enable
+    configure terminal
+        zone security IN
+            exit
+        zone security OUT
+            exit
+        zone security DMZ
+            exit
+
+        access-list 10 permit 192.168.3.0 0.0.0.255
+        class-map type inspect match-any FROM-IN
+            match access-group 10
+            exit
+        policy-map type inspect FROM-IN
+            class type inspect FROM-IN
+                inspect
+                exit
+            exit
+
+        int fa0/0
+            zone-member security IN
+            exit
+        int fa1/0
+            zone-member security OUT
+            exit
+
+        zone-pair security IN-TO-OUT source IN destination OUT
+            service-policy type inspect FROM-IN
+            exit
+        exit
+    write memory
+    exit
+
+
+!Router0:
+enable
+    configure terminal
+        int fa0/1
+            zone-member security DMZ
+            exit
+
+        !Создадим class-map для передачи трафика из внутренней сети к серверу DMZ по протоколу SSH с именем IN-DMZ-SSH
+        class-map type inspect match-all IN-DMZ-SSH
+            match access-group 10
+            match protocol ssh
+            exit
+        
+        !Создадим class-map для передачи трафика из внутренней сети к серверу DMZ по протоколу Telnet с именем IN-DMZ-TLN
+        class-map type inspect match-all IN-DMZ-TLN
+            match access-group 10
+            match protocol telnet
+            exit
+
+        !Создадим policy-map с именем IN-DMZ, с инспектированием трафика, удовлетворяющего созданным выше class-map
+        policy-map type inspect IN-DMZ
+            class type inspect IN-DMZ-SSH
+                inspect
+                exit
+            class type inspect IN-DMZ-TLN
+                inspect
+                exit
+            exit
+        
+        !Создадим class-map с именем OUT-DMZ
+        class-map type inspect match-any OUT-DMZ
+            match protocol http
+            exit
+
+        !Создадим policy-map с таким же названием и с указанием инспектировать трафик
+        policy-map type inspect OUT-DMZ
+            class type inspect OUT-DMZ
+                inspect
+                exit
+            exit
+        
+        !Пара IN-TO-DMZ
+        zone-pair security IN-TO-DMZ source IN destination DMZ
+            service-policy type inspect IN-DMZ
+            exit
+
+        !Пара зон OUT-TO-DMZ
+        zone-pair security OUT-TO-DMZ source OUT destination DMZ
+            service-policy type inspect OUT-DMZ
+            exit
+        
+        exit
+    write memory
+    exit

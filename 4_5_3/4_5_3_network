@@ -1,0 +1,25 @@
+4.5.3.1 Собрать сеть, показанную на рисунке 4.16, настроить
+адресацию по следующим исходным данным:
+- внутренняя сеть – 192.168.Х.0;
+- демилитаризованная зона – 192.168.Х+10.0;
+- внешняя сеть – 213.80.Х.0.
+4.5.3.2 Проверить связность сети.
+
+!Router0:
+enable
+    configure terminal
+        interface fa0/0
+            ip address 192.168.3.1 255.255.255.0
+            no shutdown
+            exit
+        interface fa0/1
+            ip address 192.168.13.1 255.255.255.0
+            no shutdown
+            exit
+        interface fa1/0
+            ip address 213.80.3.1 255.255.255.0
+            no shutdown
+            exit
+        exit
+    write memory
+    exit
