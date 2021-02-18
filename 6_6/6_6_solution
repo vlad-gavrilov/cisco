@@ -1,0 +1,91 @@
+1. Построить сеть с адресацией в «левой» сети 192.168.Х.0,
+а в «правой» - 192.168.Х+1.0. Прописать статические маршруты
+по умолчанию.
+2. Сконфигурировать VPN между локальными сетями.
+3. Проверить работоспособность VPN-канала.
+
+
+!Router1:
+enable
+    configure terminal
+        interface fa0/1
+            ip nat outside
+            exit
+        interface fa0/0
+            ip nat inside
+            exit
+        ip access-list extended FOR-NAT
+            deny ip 192.168.3.0 0.0.0.255 192.168.4.0 0.0.0.255
+            permit ip 192.168.3.0 0.0.0.255 any
+            exit
+        ip nat inside source list FOR-NAT interface fa0/1 overload
+        do wr
+
+        crypto isakmp policy 1
+            encryption 3des
+            hash md5
+            authentication pre-share
+            group 2
+            exit
+        crypto isakmp key cisco address 10.2.0.1
+        crypto ipsec transform-set tunnel esp-3des esp-md5-hmac
+        ip access-list extended FOR-VPN
+            permit ip 192.168.3.0 0.0.0.255 192.168.4.0 0.0.0.255
+            exit
+        crypto map CMAP 10 ipsec-isakmp
+            set peer 10.2.0.1
+            set transform-set tunnel
+            match address FOR-VPN
+            exit
+        interface fa0/1
+            crypto map CMAP
+            exit
+        do wr
+        exit
+    write memory
+    exit
+
+
+!Router2:
+enable
+    configure terminal
+        interface fa0/1
+            ip nat outside
+            exit
+        interface fa0/0
+            ip nat inside
+            exit
+        ip access-list extended FOR-NAT
+            deny ip 192.168.4.0 0.0.0.255 192.168.3.0 0.0.0.255
+            permit ip 192.168.4.0 0.0.0.255 any
+            exit
+        ip nat inside source list FOR-NAT interface fa0/1 overload
+        do wr
+
+        crypto isakmp policy 1
+            encryption 3des
+            hash md5
+            authentication pre-share
+            group 2
+            exit 
+        crypto isakmp key cisco address 10.1.0.1
+        crypto ipsec transform-set tunnel esp-3des esp-md5-hmac
+        ip access-list extended FOR-VPN
+            permit ip 192.168.4.0 0.0.0.255 192.168.3.0 0.0.0.255
+            exit
+        crypto map CMAP 10 ipsec-isakmp
+            set peer 10.1.0.1
+            set transform-set tunnel
+            match address FOR-VPN
+            exit
+        interface fa0/1
+            crypto map CMAP
+            exit
+        do wr
+        exit
+    write memory
+    exit
+
+
+enable
+    show crypto isakmp sa

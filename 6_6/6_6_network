@@ -1,0 +1,49 @@
+Настроил PC0-3
+
+!Router1:
+enable
+    configure terminal
+        interface fa0/0
+            no shutdown
+            ip address 192.168.3.1 255.255.255.0
+            exit
+        interface fa0/1
+            no shutdown
+            ip address 10.1.0.1 255.255.255.252
+            ip route 0.0.0.0 0.0.0.0 10.1.0.2
+            exit
+        exit
+    write memory
+    exit
+
+!Router2:
+enable
+    configure terminal
+        interface fa0/0
+            no shutdown
+            ip address 192.168.4.1 255.255.255.0
+            exit
+        interface fa0/1
+            no shutdown
+            ip address 10.2.0.1 255.255.255.252
+            ip route 0.0.0.0 0.0.0.0 10.2.0.2
+            exit
+        exit
+    write memory
+    exit
+
+!Router0:
+enable
+    configure terminal
+        interface fa0/0
+            no shutdown
+            ip address 10.1.0.2 255.255.255.252
+            ip route 0.0.0.0 0.0.0.0 10.1.0.1
+        interface fa0/1
+            no shutdown
+            ip address 10.2.0.2 255.255.255.252
+            ip route 0.0.0.0 0.0.0.0 10.2.0.1
+        exit
+    write memory
+    exit
+
