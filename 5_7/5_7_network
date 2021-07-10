@@ -1,0 +1,210 @@
+Собрать в Cisco Packet Tracer схему сети, показанную на рисунке 5.24.
+Настроить адресацию, обеспечить доступность внешнего сервера м всех
+внутренних серверов с внутренних ПК. Обеспечить выдачу ПК динамических адресов
+с использованием DHCP-сервера, развернутого на
+коммутаторе третьего уровня. Адрес внешнего сервера выбрать произвольно
+из адресного пространства общедоступных адресов. Адреса внутренних
+адресов выбрать произвольно.
+
+ПРИМЕЧАНИЕ. Для перевода порта коммутатора третьего уровня в
+режим Trunk необходимо сначала включить на нем режим desirable:
+Switch(config-if)#switchport mode dynamic desirable
+
+
+!Switch0:
+enable
+    configure terminal
+        vlan 101
+            name 101
+            exit
+        
+        interface range fastEthernet 0/1-2
+            switchport mode access
+            switchport access vlan 101
+            exit
+        
+        interface fastEthernet 0/3
+            switchport mode trunk
+            switchport trunk allowed vlan 101
+            exit
+        exit
+    write memory
+    exit
+
+
+!Switch1:
+enable
+    configure terminal
+        vlan 102
+            name 102
+            exit
+        
+        interface range fastEthernet 0/1-2
+            switchport mode access
+            switchport access vlan 102
+            exit
+        
+        interface fastEthernet 0/3
+            switchport mode trunk
+            switchport trunk allowed vlan 102
+            exit
+        exit
+    write memory
+    exit
+
+
+!Switch3:
+enable
+    configure terminal
+        vlan 101
+            name 101
+            exit
+
+        vlan 102
+            name 102
+            exit
+        
+        interface fastEthernet 0/2
+            switchport mode access
+            switchport access vlan 101
+            exit
+        
+        interface fastEthernet 0/3
+            switchport mode access
+            switchport access vlan 102
+            exit
+
+        interface fastEthernet 0/1
+            switchport mode trunk
+            switchport trunk allowed vlan 101,102
+            exit
+        exit
+    write memory
+    exit
+
+
+!Multilayer Switch0:
+enable
+    configure terminal
+        vlan 101
+            name 101
+            exit
+
+        vlan 102
+            name 102
+            exit
+        
+        interface fastEthernet 0/4
+            switchport mode dynamic desirable
+            switchport mode trunk
+            switchport trunk allowed vlan 101
+            exit
+        
+        interface fastEthernet 0/2
+            switchport mode dynamic desirable
+            switchport mode trunk
+            switchport trunk allowed vlan 102
+            exit
+
+        interface fastEthernet 0/1
+            switchport mode dynamic desirable
+            switchport mode trunk
+            switchport trunk allowed vlan 101,102
+            exit
+        exit
+    write memory
+    exit
+
+!Switch4:
+enable
+    configure terminal
+        interface range fa0/2-3
+            channel-group 1 mode on
+            exit
+        exit
+    write memory
+    exit
+
+
+!Multilayer Switch0:    
+enable
+    configure terminal
+        interface range fa0/5-6
+            channel-group 1 mode on
+            exit
+        exit
+    write memory
+    exit
+
+!Switch2:
+enable
+    configure terminal
+        vlan 6
+            name FTP6
+            exit
+
+        vlan 7
+            name FTP7
+            exit
+
+        interface fastEthernet 0/2
+            switchport mode access
+            switchport access vlan 6
+            exit
+        
+        interface fastEthernet 0/1
+            switchport mode access
+            switchport access vlan 7
+            exit
+
+        interface fastEthernet 0/3
+            switchport mode trunk
+            switchport trunk allowed vlan 6,7
+            exit
+        exit
+    write memory
+    exit
+
+!Switch4:
+enable
+    configure terminal
+        vlan 6
+            name FTP6
+            exit
+
+        vlan 7
+            name FTP7
+            exit
+        
+        interface fastEthernet 0/1
+            switchport mode trunk
+            switchport trunk allowed vlan 6,7
+            exit
+
+        interface port-channel 1
+            switchport mode trunk
+            switchport trunk allowed vlan 6,7
+            exit
+        exit
+    write memory
+    exit
+
+!Multilayer Switch0:
+enable    
+    configure terminal
+        vlan 6
+            name FTP6
+            exit
+
+        vlan 7
+            name FTP7
+            exit
+
+        interface port-channel 1
+            switchport mode dynamic desirable
+            switchport mode trunk
+            switchport trunk allowed vlan 6,7
+            exit
+        exit
+    write memory
+    exit
